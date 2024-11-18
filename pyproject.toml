@@ -1,0 +1,11 @@
+[tool.poetry]
+name = "cargo-insurance"
+version = "0.1.0"
+description = ""
+authors = ["Konstantin Grudnitskiy <k.grudnitskiy@yandex.ru>"]
+license = "MIT"
+readme = "README.md"
+packages = [{include = "app"}]
+
+[tool.poetry.dependencies]
+python = "^3.12"
