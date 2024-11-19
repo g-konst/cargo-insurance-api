@@ -1,0 +1,26 @@
+services:
+  api:
+    build:
+      context: .
+      dockerfile: ./docker/Dockerfile.api
+    depends_on:
+      - db
+    env_file: &env_files
+      - .env.example
+      - .env
+    ports:
+      - 4000:${APP__API__PORT}
+    entrypoint: | # TODO: replace with gunicorn
+      uvicorn --workers 4 --host ${APP__API__HOST} --port ${APP__API__PORT}
+        app.api.http_server:application
+
+  db:
+    image: postgres:14
+    env_file:
+      *env_files
+    environment:
+      POSTGRES_DB: ${APP__DB__NAME}
+      POSTGRES_USER: ${APP__DB__USER}
+      POSTGRES_PASSWORD: ${APP__DB__PASSWORD}
+    ports:
+      - "5435:5432"
