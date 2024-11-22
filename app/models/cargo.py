@@ -1,7 +1,7 @@
-from datetime import date
+from datetime import date, datetime, UTC
 
 from sqlalchemy.orm import Mapped, mapped_column, relationship
-from sqlalchemy import UniqueConstraint, ForeignKey
+from sqlalchemy import UniqueConstraint, ForeignKey, func
 
 from .base import Base
 
@@ -22,6 +22,12 @@ class CargoRate(Base):
     rate: Mapped[float] = mapped_column()
     dt: Mapped[date] = mapped_column()
     cargo_type_id: Mapped[int] = mapped_column(ForeignKey("cargo_types.id"))
+    modified_at: Mapped[datetime] = mapped_column(
+        default=datetime.now,
+        server_default=func.now(),
+        onupdate=datetime.now(),
+        server_onupdate=func.now(),
+    )
 
     cargo_type: Mapped[CargoType] = relationship()
 
