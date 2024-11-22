@@ -1,0 +1,47 @@
+@cargo_type=Glass
+@user_id=3c630367-cde7-4cb1-a694-3599dd8b2017
+
+### Get cargo rates
+GET http://localhost:4000/api/v1/cargo/{{cargo_type}}/rates?dt=2024-11-19
+Content-Type: application/json
+X-User-Id: {{user_id}}
+
+### Get cargo insurance
+GET http://localhost:4000/api/v1/cargo/{{cargo_type}}/insurance?price=100500
+Content-Type: application/json
+X-User-Id: {{user_id}}
+
+### Create/Update cargo rates
+POST http://localhost:4000/api/v1/cargo/rates
+Content-Type: application/json
+X-User-Id: {{user_id}}
+
+{
+    "2024-11-19": [
+        {"cargo_type": "Glass", "rate": 0.08},
+        {"cargo_type": "Other", "rate": 0.02}
+    ],
+    "2024-11-18": [
+        {"cargo_type": "Glass", "rate": 0.06},
+        {"cargo_type": "Other", "rate": 0.01}
+    ],
+    "2024-11-17": [
+        {"cargo_type": "Glass", "rate": 0.07},
+        {"cargo_type": "Other", "rate": 0.01}
+    ],
+    "2024-11-16": [
+        {"cargo_type": "Glass", "rate": 0.05},
+        {"cargo_type": "Other", "rate": 0.02}
+    ]
+}
+
+
+### Delete cargo rates
+DELETE http://localhost:4000/api/v1/cargo/rates
+Content-Type: application/json
+X-User-Id: {{user_id}}
+
+{
+  "cargo_type": "Glass",
+  "dt": "2024-11-18"
+}
