@@ -27,6 +27,19 @@ class DatabaseConfig(BaseModel):
         return f"postgresql+asyncpg://{self.user}:{self.password}@{self.host}:{self.port}/{self.name}"
 
 
+class KafkaConfig(BaseModel):
+    host: str = "localhost"
+    port: int = 9092
+
+    topic: str = "action_log"
+    linger_ms: int = 1000
+    max_batch_size: int = 16384
+
+    @property
+    def url(self) -> str:
+        return f"{self.host}:{self.port}"
+
+
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(
         env_file=(".env.example", ".env"),
@@ -38,6 +51,7 @@ class Settings(BaseSettings):
 
     api: ApiConfig = ApiConfig()
     db: DatabaseConfig
+    kafka: KafkaConfig = KafkaConfig()
 
 
 settings = Settings()
