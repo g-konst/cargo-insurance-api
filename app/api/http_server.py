@@ -6,14 +6,18 @@ from fastapi.middleware import Middleware
 
 from app.api.routes import router as api_router
 from app.api.middlewares.user_id import UserIDMiddleware
+from app.api.middlewares.kafka_logger import KafkaLoggerMiddleware
 from app.database import db_helper
 from app.config import settings
+from app.broker import app_broker
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    await app_broker.connect()
     yield
     await db_helper.dispose()
+    await app_broker.dispose()
 
 
 application = FastAPI(
@@ -30,6 +34,7 @@ application = FastAPI(
     },
     middleware=[
         Middleware(UserIDMiddleware),
+        Middleware(KafkaLoggerMiddleware),
     ],
     lifespan=lifespan,
 )
