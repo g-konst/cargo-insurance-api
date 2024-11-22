@@ -2,8 +2,10 @@ from contextlib import asynccontextmanager
 
 import uvicorn
 from fastapi import FastAPI
+from fastapi.middleware import Middleware
 
 from app.api.routes import router as api_router
+from app.api.middlewares.user_id import UserIDMiddleware
 from app.database import db_helper
 from app.config import settings
 
@@ -26,6 +28,9 @@ application = FastAPI(
         "name": "Konstantin Grudnitskiy",
         "email": "k.grudnitskiy@yandex.ru",
     },
+    middleware=[
+        Middleware(UserIDMiddleware),
+    ],
     lifespan=lifespan,
 )
 application.include_router(api_router)
