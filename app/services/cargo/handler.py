@@ -1,11 +1,12 @@
-from datetime import date
+from datetime import date, datetime
 
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.orm import selectinload, joinedload
+from sqlalchemy.orm import selectinload
+from sqlalchemy import delete
 
 from app.models import CargoRate, CargoType
 from app.services.base.handler import BaseHandler
-from app.services.cargo.schemas import PostRatesSchema
+from app.services.cargo.schemas import PostRatesSchema, DeleteRatesSchema
 
 
 class CargoTypeHandler(BaseHandler[CargoType]):
@@ -27,7 +28,7 @@ class CargoRateHandler(BaseHandler[CargoRate]):
             session,
             filters=(
                 CargoRate.cargo_type_id.in_(
-                    type_stmt.with_only_columns(CargoType.id).subquery()
+                    type_stmt.with_only_columns(CargoType.id)
                 ),
             ),
             dt=dt,
@@ -55,6 +56,7 @@ class CargoRateHandler(BaseHandler[CargoRate]):
                         dt=dt,
                         cargo_type=cargo_rate.cargo_type,
                         rate=cargo_rate.rate,
+                        modified_at=datetime.now(),
                     )
                 )
 
@@ -82,3 +84,30 @@ class CargoRateHandler(BaseHandler[CargoRate]):
             obj["cargo_type_id"] = cargo_types[cargo_type_name].id
 
         return await cls.upsert_many(session, ("cargo_type_id", "dt"), objects)
+
+    @classmethod
+    async def delete_rates(
+        cls, session: AsyncSession, data: DeleteRatesSchema
+    ):
+
+        filters = []
+        if dt := data.dt:
+            filters.append(cls.model.dt == dt)
+
+        if cargo_type := data.cargo_type:
+            type_stmt = await CargoTypeHandler.get_by(
+                session, name=cargo_type, only_stmt=True
+            )
+            filters.append(
+                CargoRate.cargo_type_id.in_(
+                    type_stmt.with_only_columns(CargoType.id)
+                )
+            )
+
+        stmt = (
+            delete(cls.model)
+            .filter(*filters)
+            .options(selectinload(CargoRate.cargo_type))
+        )
+        await session.execute(stmt)
+        await session.commit()

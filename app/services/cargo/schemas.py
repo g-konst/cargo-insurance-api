@@ -19,3 +19,8 @@ class CargoRateIn(CargoRate):
 
 
 class PostRatesSchema(RootModel[dict[date, list[CargoRateIn]]]): ...
+
+
+class DeleteRatesSchema(BaseModel):
+    cargo_type: str | None = None
+    dt: date | None = None
