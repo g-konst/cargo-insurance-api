@@ -1,4 +1,4 @@
-.DEFAULT_GOAL := run
+.DEFAULT_GOAL := up
 
 VENV = venv
 
@@ -27,3 +27,10 @@ migration_up:
 
 migration_down:
 	alembic downgrade "$(r)"
+
+run:
+	gunicorn -k uvicorn.workers.UvicornWorker \
+        --workers 4 \
+        --threads 2 \
+        --bind ${APP__API__HOST}:${APP__API__PORT} \
+        app.api.http_server:application
