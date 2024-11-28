@@ -2,6 +2,7 @@ from contextlib import asynccontextmanager
 
 import uvicorn
 from fastapi import FastAPI
+from fastapi.responses import ORJSONResponse
 from fastapi.middleware import Middleware
 
 from app.api.routes import router as api_router
@@ -36,6 +37,7 @@ application = FastAPI(
         Middleware(UserIDMiddleware),
         Middleware(KafkaLoggerMiddleware),
     ],
+    default_response_class=ORJSONResponse,
     lifespan=lifespan,
 )
 application.include_router(api_router)
