@@ -2,18 +2,25 @@ services:
   api:
     build:
       context: .
-      dockerfile: ./docker/Dockerfile.api
+      dockerfile: docker/api.Dockerfile
+    deploy:
+      replicas: 1
     depends_on:
       - db
       - kafka
     env_file: &env_files
       - .env.example
       - .env
+    environment:
+      APP__DB__HOST: db
     ports:
-      - 4000:${APP__API__PORT}
+      - ${APP__API__PORT}:${APP__API__PORT}
     restart: on-failure
-    entrypoint: | # TODO: replace with gunicorn
-      uvicorn --workers 4 --host ${APP__API__HOST} --port ${APP__API__PORT}
+    entrypoint: |
+      gunicorn -k uvicorn.workers.UvicornWorker
+        --workers 4
+        --threads 2
+        --bind ${APP__API__HOST}:${APP__API__PORT}
         app.api.http_server:application
 
   db:
@@ -25,7 +32,7 @@ services:
       POSTGRES_USER: ${APP__DB__USER}
       POSTGRES_PASSWORD: ${APP__DB__PASSWORD}
     ports:
-      - "5432:5432"
+      - "5435:5432"
     volumes:
       - pg-data:/var/lib/postgresql/data
 
