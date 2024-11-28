@@ -4,6 +4,7 @@ import uvicorn
 from fastapi import FastAPI
 from fastapi.responses import ORJSONResponse
 from fastapi.middleware import Middleware
+from fastapi.middleware.gzip import GZipMiddleware
 
 from app.api.routes import router as api_router
 from app.api.middlewares.user_id import UserIDMiddleware
@@ -34,6 +35,7 @@ application = FastAPI(
         "email": "k.grudnitskiy@yandex.ru",
     },
     middleware=[
+        Middleware(GZipMiddleware, minimum_size=1000),
         Middleware(UserIDMiddleware),
         Middleware(KafkaLoggerMiddleware),
     ],
